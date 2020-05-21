@@ -1,0 +1,43 @@
+#!/usr/bin/env raku
+
+use WeightClass::Logging;
+use WeightClass::Config;
+use WeightClass::Server;
+use WeightClass::User::Router;
+use WeightClass::User::Service;
+use WeightClass::User::Repo;
+
+use DB::Pg;
+
+my $log = WeightClass::Logging.new('main');
+
+sub MAIN(Str :$config-file = 'config.yaml') {
+    $log.info("WeightClass starting...");
+    $log.debug("Reading configuration from $config-file...");
+    # XXX validate top level keys and that the top is a hash
+    my %config = load-config($config-file);
+
+    my $conninfo = %config<database>.pairs.sort.map({"{.key}={.value}"}).join(' ');
+    my $conninfo_nopassword = $conninfo.subst(/'password='<-[\h]>+/, 'password=******', :g);
+    $log.info("Using database '$conninfo_nopassword'");
+    my $dbh = DB::Pg.new(:$conninfo);
+
+    my $user-repo = WeightClass::User::Repo.new(:$dbh);
+    my $user-service = WeightClass::User::Service.new(:$user-repo);
+    my $user-router = WeightClass::User::Router.new(:$user-service);
+    my $server = WeightClass::Server.new(:$user-router, |%config<server>);
+
+    $log.debug("Starting components...");
+    $server.start;
+
+    $log.info("Application initialization complete!");
+
+    signal(SIGINT).tap: {
+        $log.debug("Shutting down components...");
+        $server.stop;
+        $log.info("Clean shutdown, see you later!");
+        exit;
+    }
+
+    sleep;
+}

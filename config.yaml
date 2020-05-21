@@ -1,0 +1,9 @@
+server:
+    port: 8080
+database:
+    host: localhost
+    port: 5432
+    dbname: weightclass
+    user: weightclass
+    password: ouvaiMaiK3ooTooK
+

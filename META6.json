@@ -1,0 +1,20 @@
+{
+    "perl": "6.c",
+    "name": "WeightClass",
+    "version": "0.0",
+    "description": "Track bodyweight, filter out the noiose, compare",
+    "authors": [
+        "Robert Lemmen <robertle@semistable.com>"
+    ],
+    "depends": [
+        "Cro::HTTP",
+        "JSON::Fast",
+        "YAMLish"
+    ],
+    "test-depends": [
+        "Test::META"
+    ],
+    "provides": {},
+    "license": "Artistic-2.0",
+    "source-url": "git://github.com/robertlemmen/svc-weightclass.git"
+}
